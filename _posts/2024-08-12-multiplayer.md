@@ -1,6 +1,6 @@
 ---
 layout:     page
-title:      Multiplayer extension to 3D in Java, ViridianNetworking
+title:      3D Multiplayer in Java, ViridianNetworking
 summary:    A multiplayer demo using the 3D engine that I built previously
 categories: jekyll pixyll
 ---
