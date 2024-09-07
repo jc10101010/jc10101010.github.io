@@ -5,7 +5,7 @@ summary:    A multiplayer demo using the 3D engine that I built previously
 categories: jekyll pixyll
 ---
 
-After playing many 3D multiplayer games in my life, and having programmed a 3D engine already.
+Having played many 3D multiplayer games in my life, and having programmed a 3D engine already.
 I decided to undertake the process of making a __3D multiplayer demo__. While doing this I created __VeridianNetworking__
 a networking library for Java, that is not tied to its 3D roots, although it is definitely most useful
 for that purpose.
