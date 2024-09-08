@@ -1,20 +1,19 @@
 ---
 layout:     page
-title:      Reusable 3D in Java, TurquoiseGraphics
-summary:    A reusable renderer built in Java, can display move, scale and rotate objects.
+title:      GUI-Agnostic 3D Renderer in Java, TurquoiseGraphics
+summary:    A GUI-Agnostic renderer built in Java, can display move, scale and rotate objects. Implemented in Swing.
 categories: jekyll pixyll
 ---
 
-As some of you may know, Java Swing provides GUI tools for Java, which means you 
-can draw triangles. And if you can draw triangles then you can draw __3D Shapes__! 
-This inspired me to create a 3D Renderer in Java. Getting the object structure of 
-the program to work was the biggest challenge, but was very rewarding when a solution
-works well.
+Realising that I was able to use GUIs like swing to draw triangles, I was inspired. 
+Because if you can draw triangles, you can draw  __3D Shapes__! This inspired me to 
+create a 3D Renderer in Java. The object strucutre of this program was intricate
+and so took a lot of refining, but I am happy with the result.
 
-In the end I had created a reusable 3D Graphics library in Java, 
-I named it __TurquoiseGraphics__. It could load in any __obj file__ then __move it__, __scale it__ and __rotate it__ while
-the player walks around. It can also be reused across any particular visual implementation
-(not just Swing, even in the terminal if neccesary!). 
+__TurquoiseGraphics__ is a __GUI Agnostic__ renderer written in Java, this specific demo
+is implemented in Swing. It can load in any __obj file__ and __move it__, __scale it__
+and __rotate it__ while the player walks around. It's ability to be reused across any particular
+visual implementation is also a key strength (even in the terminal if neccesary!). 
 
 _![Showing the 3D engine](/images/main_show_3d.png){:width="1000px"}_
 

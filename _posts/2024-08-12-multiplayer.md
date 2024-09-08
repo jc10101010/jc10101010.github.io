@@ -1,14 +1,14 @@
 ---
 layout:     page
 title:      3D Multiplayer in Java, ViridianNetworking
-summary:    A multiplayer demo using the 3D engine that I built previously
+summary:    A UDP game networking solution written in Java. Applied in a 3D multiplayer demo. 
 categories: jekyll pixyll
 ---
 
 Having played many 3D multiplayer games in my life, and having programmed a 3D engine already.
 I decided to undertake the process of making a __3D multiplayer demo__. While doing this I created __VeridianNetworking__
 a networking library for Java, that is not tied to its 3D roots, although it is definitely most useful
-for that purpose.
+for that purpose. This demo uses the previously made __TurquoiseGraphics__ library.
 
 ![Multiplayer game image](/images/multiplayer-demo.png)
 
