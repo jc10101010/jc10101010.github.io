@@ -1,6 +1,6 @@
 ---
 layout:     page
-title:      GUI-Agnostic 3D Renderer in Java, TurquoiseGraphics
+title:      GUI-Agnostic 3D Rendering Library in Java, TurquoiseGraphics
 summary:    A GUI-Agnostic renderer built in Java, can display move, scale and rotate objects. Implemented in Swing.
 categories: jekyll pixyll
 ---

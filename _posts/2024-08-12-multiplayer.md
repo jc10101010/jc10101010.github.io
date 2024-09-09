@@ -1,6 +1,6 @@
 ---
 layout:     page
-title:      3D Multiplayer in Java, ViridianNetworking
+title:      3D Multiplayer in Java using Custom Protocol, ViridianNetworking
 summary:    A UDP game networking solution written in Java. Applied in a 3D multiplayer demo. 
 categories: jekyll pixyll
 ---
@@ -23,7 +23,6 @@ for the data transmission as it is much more swift than TCP.
 ![Client Server Network](/images/client-server-network.png)
 
 ## Packet Definition
-Defining the packets for this project was challenging, but here are the final packets I decided on:
 
 ### Overall protocol
 For this project I aimed to make the protocol as human readable as possible. I also had to ensure that
