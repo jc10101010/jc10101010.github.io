@@ -7,19 +7,21 @@ tags: about
 
 __Hello__ I am Joseph Clarke, a second year Computer Science student at the University of St Andrews. In my free time, I enjoy going on walks and reading books. My favorite programming areas are networking and graph databases.
 
-I am proficient in the following languages:
+__Languages:__  
+- Python  
+- Java  
+- C#  
+- JavaScript  
+- HTML, CSS  
 
- * Python
- * Java
- * C#
- * JavaScript
- * HTML
- * CSS
+__Tools & Frameworks:__  
+- Git  
+- SQLite  
+- Neo4J  
+- Selenium  
+- Scrapy  
+- Pandas, NumPy, Matplotlib  
+- Docker  
+- Swing  
 
-And with the following tools:
-
-  * SQLite
-  * Neo4J
-  * Selenium
-  * Scrapy
-  * Pandas
+For the code of my projects, feel free to [check out my GitHub](https://github.com/jc10101010)
