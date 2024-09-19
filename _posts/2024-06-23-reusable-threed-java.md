@@ -5,130 +5,110 @@ summary:    A GUI-Agnostic renderer built in Java, can display move, scale and r
 categories: jekyll pixyll
 ---
 
-Realising that I was able to use GUIs like swing to draw triangles, I was inspired. 
-Because if you can draw triangles, you can draw  __3D Shapes__! This inspired me to 
-create a 3D Renderer in Java. The object strucutre of this program was intricate
-and so took a lot of refining, but I am happy with the result.
+Realizing that I was able to use GUIs like Swing to draw triangles, I became inspired. If you can draw triangles, you can draw **3D Shapes**! This idea led me to create a 3D renderer in Java. The object structure of the program was intricate and took a lot of refining, but I’m happy with the result.
 
-__TurquoiseGraphics__ is a __GUI Agnostic__ renderer written in Java, this specific demo
-is implemented in Swing. It can load in any __obj file__ and __move it__, __scale it__
-and __rotate it__ while the player walks around. It's ability to be reused across any particular
-visual implementation is also a key strength (even in the terminal if neccesary!). 
+**TurquoiseGraphics** is a **GUI-agnostic** renderer written in Java. This specific demo is implemented in Swing, but it can load any **OBJ file** and allow you to **move**, **scale**, and **rotate** it while the player moves around. One of its key strengths is its ability to be reused across any particular visual implementation, even in a terminal if necessary!
 
 _![Showing the 3D engine](/images/main_show_3d.png){:width="1000px"}_
 
-The program renders a __Scene__ which has many __RenderObjects__ in it. Here is what the process of creating an 
-object to add to the scene looks like:
+The program renders a **Scene** that contains many **RenderObjects**. Here’s an example of the process of creating an object and adding it to the scene:
 
+```java
+// Create scene object, which holds many RenderObjects
+scene = new Scene(new ArrayList<RenderObject>(Arrays.asList()));
 
-
-{% highlight java lineanchors %}
-
-//Create scene object, which holds many RenderObjects
-scene = new Scene(new ArrayList<RenderObject> (Arrays.asList()));
-
-//Create a teapot object, from the "teapot.obj" file, with a red shadowed shader
+// Create a teapot object, from the "teapot.obj" file, with a red shadowed shader
 teapot = RenderObject.loadObject("data/teapot.obj", "teapot", new InverseSqrShadow(new Color(255,0,0), scene), new Vertex(0,0f,0));
 
-scene.addObject(teapot)
+scene.addObject(teapot);
 
-teapot.setScale(new Vertex(3,2,1))
+teapot.setScale(new Vertex(3,2,1));
+```
 
-      . . . 
-{% endhighlight %}
+In this example, the **InverseSqrShadow** is a subclass of the **ColourShader** class. It works similarly to a pixel shader, but instead of shading individual pixels, it shades whole triangles. Here are some examples of how different shaders look:
 
-Here the __InverseSqrShadow__ is a subclass of the __ColourShader__ class which works almost like a pixel shader,
-except instead of shading individual pixels it shades whole triangles. Here are some examples of how shaders look:
-
-__InverseSqrShadow__ Teapot and __InverseSqrShadow__  Floor:
+**InverseSqrShadow** Teapot and **InverseSqrShadow** Floor:
 
 ![InverseSqrShadow Shader](/images/sqrshadow.png){:width="600px"}
 
-__NonShadow__ Teapot and __InverseSqrShadow__ Floor:
+**NonShadow** Teapot and **InverseSqrShadow** Floor:
 
 ![InverseSqrShadow Shader](/images/noshadowteapot.png){:width="600px"}
 
-__HorizontalShader__ Teapot and __InverseSqrShadow__ Floor:
+**HorizontalShader** Teapot and **InverseSqrShadow** Floor:
 
 ![InverseSqrShadow Shader](/images/horizontal.png){:width="600px"}
 
-Here is some of the code behind the 
-__InverseSqrShadow__ colour shader:
+Here’s some of the code behind the **InverseSqrShadow** color shader:
 
-{% highlight java lineanchors %}
-
+```java
 /**
-* Returns the colour this triangle should be. 
-* Based on the position of the triangle, the rest of the scene.
-* 
-* In particular this function reduces the brightness of triangles
-* based on their proximity to the camera
-* 
-* @param  triangle  the triangle to be shaded
-* @return  finalColour the colour the triangle should be
-*/
+ * Returns the color this triangle should be based on its position in the scene.
+ * 
+ * In particular, this function reduces the brightness of triangles
+ * based on their proximity to the camera.
+ * 
+ * @param triangle the triangle to be shaded
+ * @return finalColour the color the triangle should be
+ */
 public Color shadeBasedOnTriangle(Triangle triangle) {
-    //Averages out triangle so it can be treated as one point
+    // Average out the triangle's vertices so it can be treated as one point
     Vertex tV = averageTriangleAsVertex(triangle);
 
-    //Find distance to camera
+    // Find the distance to the camera
     Vertex diff = Vertex.difference(tV, scene.getCamPos());
     
-    //Scale the rgb values by the inverse square distance to the camera and the shaderFactor
+    // Scale the RGB values by the inverse square of the distance to the camera and the shaderFactor
     int red = (int) Math.round(inverseSquare(diff.magnitude() * shaderFactor) * colour.getRed());
-    int green = (int) Math.round(inverseSquare(diff.magnitude() * shaderFactor)* colour.getGreen());
-    int blue = (int) Math.round(inverseSquare(diff.magnitude() * shaderFactor)* colour.getBlue());
+    int green = (int) Math.round(inverseSquare(diff.magnitude() * shaderFactor) * colour.getGreen());
+    int blue = (int) Math.round(inverseSquare(diff.magnitude() * shaderFactor) * colour.getBlue());
 
     Color finalColour = new Color(red, green, blue);
     return finalColour;
 }
 
 /**
-* Calculates the inverse square of some value.
-* In physics, the greater the distance from a light 
-* The exponentially less light you see.
-* 
-* @param  x  the value to be inverse squared
-* @return  1/((absX+1)*(absX+1)) the calculation result
-*/
+ * Calculates the inverse square of a given value.
+ * In physics, the greater the distance from a light source, 
+ * the exponentially less light you see.
+ * 
+ * @param x the value to be inverse squared
+ * @return 1/((absX+1)*(absX+1)) the result of the calculation
+ */
 public static float inverseSquare(float x) {
     float absX = Math.abs(x);
-    return 1/((absX+1)*(absX+1));
+    return 1 / ((absX + 1) * (absX + 1));
 }
+```
+Below is the main section of code required to implement the 3D renderer into any project:
 
-{% endhighlight %}
-
-As this project is open source, [Find the code here on github](https://github.com/jc10101010/TurquoiseGraphics). This is the main bit of code required to 
-implement the 3D renderer into any project:
-
-{% highlight java lineanchors %}
-
+```java
 /**
-* Performs all projection calculations and draws the 
-* scene to the screen
-*/
+ * Performs all projection calculations and draws the 
+ * scene to the screen.
+ */
 private void drawSceneToScreen() {
     
-    //Does all of the projection calculations for every triangle
+    // Perform all projection calculations for every triangle
     scene.renderScene();
     
-    //Create parralel arrays for the rendered data
+    // Create parallel arrays for the rendered data
     Triangle2D[] trianglesToDisplay = scene.getRenderedTriangles();
     Color[] colours = scene.getColours();
     String[] names = scene.getNames();
 
-    //For each triangle in the scene, display it
+    // For each triangle in the scene, display it
     for (int index = 0; index < scene.getCount(); index++) {
         if (trianglesToDisplay[index] != null) {
             
-            //TAKE THE TRIANGLE COORDINATES AND COLOR AND DRAW IT
-
+            // Take the triangle coordinates and color and draw it
         }
     }
 }
+```
 
-{% endhighlight %}
+As this project is open source, you can [find the code here on GitHub](https://github.com/jc10101010/TurquoiseGraphics).
 
-### Future Plans: 
-  * Shaders that cast shadows from objects
-  * Improve efficiency
+### Future Plans:
+- Implement shaders that cast shadows from objects
+- Improve efficiency

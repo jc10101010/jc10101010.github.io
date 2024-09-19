@@ -3,160 +3,147 @@ layout:     page
 title:      3D Multiplayer in Java using Custom Protocol, ViridianNetworking
 summary:    A UDP game networking solution written in Java. Applied in a 3D multiplayer demo. 
 categories: jekyll pixyll
+
 ---
 
-Having played many 3D multiplayer games in my life, and having programmed a 3D engine already.
-I decided to undertake the process of making a __3D multiplayer demo__. While doing this I created __VeridianNetworking__
-a networking library for Java, that is not tied to its 3D roots, although it is definitely most useful
-for that purpose. This demo uses the previously made __TurquoiseGraphics__ library.
+Having played many 3D multiplayer games throughout my life and already programmed a 3D engine, I decided to create a **3D multiplayer demo**. In the process, I developed **Viridian Networking**, a Java-based networking library that, while optimized for 3D games, can be used in various contexts. This demo integrates with the previously created **TurquoiseGraphics** library.
 
 ![Multiplayer game image](/images/multiplayer-demo.png)
 
-
 ## Architecture
 
-For this project I decided to go with the classic __Client-Server model__. 
-The performance benefits of this approach are self evident, and it also removes any 
-privacy concerns about knowing other player's ip addresses. I also decided to use UDP 
-for the data transmission as it is much more swift than TCP.
+For this project, I chose the classic **Client-Server model**. The performance benefits of this approach are clear, and it also removes privacy concerns about revealing players' IP addresses. I opted for **UDP** (User Datagram Protocol) for data transmission, as it is significantly faster than TCP.
 
 ![Client Server Network](/images/client-server-network.png)
 
 ## Packet Definition
 
-### Overall protocol
-For this project I aimed to make the protocol as human readable as possible. I also had to ensure that
-all messages that were sent had a clear start and end as UDP does not guarantee that packets
-will be transmitted from start to end. Here is the format I decided on:
-{% highlight  lineanchors %}
+### Overall Protocol
+
+The protocol was designed to be as human-readable as possible. I also ensured that all messages had a clear start and end, as UDP does not guarantee the delivery of packets in sequence. Here's the format I settled on:
+
+```
 START {CLIENT/SERVER} MESSAGE_CONTENT END
+```
 
-Note: 
-CLIENT/SERVER refers to the sender of the packet
-MESSAGE_CONTENT refers to the actual data being sent
-{% endhighlight %}
+**Note:**  
+- **CLIENT/SERVER** refers to the packet's sender.
+- **MESSAGE_CONTENT** is the actual data being transmitted.
 
-### A typical interaction
-####      Interaction One: Joining A Game
+### A Typical Interaction
+
+#### Interaction One: Joining a Game
+
 ##### Client Sends: The Join Packet
-This is the first packet a client sends to the server, to indicate that it wants 
-to be part of the lobby. Essentially this packet is like the computer knocking on the door.
-{% highlight  lineanchors %}
+This is the first packet a client sends to the server, indicating its desire to join the game lobby. It’s like the client knocking on the server's door.
+
+```
 START CLIENT JOIN END
-{% endhighlight %}
+```
+
 ##### Server Sends: The You Joined Packet
-This is the packet the server sends to the client to indicate that
-it is now part of the lobby and can request the current game state data.
-{% highlight  lineanchors %}
+This packet confirms that the client has successfully joined the lobby and can now request the current game state.
+
+```
 START SERVER YOUJOINED END
-{% endhighlight %}
+```
 
+#### Interaction Two: Typical Data Transfer
 
-
-
-####      Interaction Two: Typical Data Transfer
 ##### Client Sends: The Set Position and Rotation Packet
-This is the packet the client sends to the server to tell the server its current
-position and rotation in the world. 
-{% highlight  lineanchors %}
+The client sends this packet to inform the server of its current position and rotation in the game world.
+
+```
 START CLIENT SET POSITION 2 2 2 END
 START CLIENT SET ROTATION 2.843 -0.342 0.8973 END
-{% endhighlight %}
+```
+
 ##### Client Sends: The Request Packet
-This is the packet the client sends to the server to ask for the current state of the other players
-in the game.
-{% highlight  lineanchors %}
+This packet requests the current state of other players from the server.
+
+```
 START CLIENT REQUEST END
-{% endhighlight %}
-  
+```
+
 ##### Server Sends: The State Position and Rotation Packet
-This is the packet the server sends to the client to inform the client what the position and rotation of some player is.
-The server sends one of these packets for each player other than the client-player. The first number indicates
-the "name" of the player, which is just the id assigned by the server.
-{% highlight  lineanchors %}
+In response, the server sends the position and rotation of other players. The first number indicates the player's name, which is essentially the ID assigned by the server.
+
+```
 START SERVER STATE POSITION 2 1 1 1.5 END
 START SERVER STATE ROTATION 2 2.754 2.32 0.23 END
-{% endhighlight %}
+```
 
-## Code Samples 
+## Code Samples
+
 ### Server
-The server in this project is __blocking__, constantly waiting to receive a 
-packet so it can quickly respond with some packets of its own. 
-Here is the main server code:
-{% highlight java lineanchors %}
 
+The server in this project is **blocking**, meaning it waits continuously to receive a packet, then quickly responds before going back to waiting. Here's the main server code:
+
+```java
 /**
-* Performs the main loop of the server 
-* Waits to receieve a packet and then responds.
-* then it goes back to waiting.
-*/
+ * Performs the main loop of the server.
+ * Waits to receive a packet and then responds.
+ * Then it goes back to waiting.
+ */
 public void runServer() throws IOException {
     while (true) {
-        //Block until a packet is receieved
+        // Block until a packet is received
         receivePacket();
 
-        //Respond to packet receieved
+        // Respond to the received packet
         generateResponsePacket();
 
-        //Send response packets
-        if (responsePackets.size() != 0) {
+        // Send response packets
+        if (!responsePackets.isEmpty()) {
             for (Packet packet : responsePackets) {
                 sendResponsePacket(packet);
             }
         }
     }
 }
-
-{% endhighlight %}
+```
 
 ### Client
 
-Unlike the server the client is __not blocking__, this means
-that the client is looping ~20 times a second. First the 
-client sends any pending messages. Then if it has 
-new packets from the server that have not been processed it will process them.
-Here is the main client code:
+Unlike the server, the client is **non-blocking**, meaning it loops around 20 times per second. First, it sends any pending messages. If there are unprocessed packets from the server, it processes them. Here's the main client code:
 
-{% highlight java lineanchors %}
-
+```java
 /**
-* Performs the main loop of the client 
-* loops constantly waiting to receieve a packet 
-* and then processes it.
-*/
-public void run_client() throws IOException, InterruptedException{
+ * Performs the main loop of the client.
+ * Loops constantly, waiting to receive a packet,
+ * and then processes it.
+ */
+public void run_client() throws IOException, InterruptedException {
     while (true) {
-        //If already in game
+        // If already in the game
         if (has_joined_game) {
-            //Send typical data transfer packets
+            // Send typical data transfer packets
             sendPacket(new ClientSetPositionPacket(player_position));
             sendPacket(new ClientSetRotationPacket(player_rotation));
             sendPacket(new ClientRequestPacket());
         } else {
-            //Send a join packet
+            // Send a join packet
             sendPacket(new ClientJoinPacket());
         }
-        
-        //Receieve any pending packets, NOT BLOCKING
+
+        // Receive any pending packets, NOT BLOCKING
         receivePackets();
 
-        //Process any packets that were pending
+        // Process any pending packets
         while (isPacketAvailable()) {
             processPacket(getFirstPacket());
         }
-
     }
 }
-
-{% endhighlight %}
+```
 
 ### Packets
-As this library was written in Java, all packets are their own Class and inherit from other packets. 
-Heres the code for defining the ClientSetPositionPacket packet: 
-{% highlight java lineanchors %}
 
+Since this library is written in Java, each packet is its own class and inherits from other packet classes. Here’s the code for the `ClientSetPositionPacket`:
+
+```java
 public class ClientSetPositionPacket extends ClientSetPacket {
-    public Vertex position; //The position being sent in the packet
+    public Vertex position; // The position being sent in the packet
 
     public ClientSetPositionPacket(Vertex position) {
         clientSetType = clientSetTypeEnum.POSITION;
@@ -164,54 +151,50 @@ public class ClientSetPositionPacket extends ClientSetPacket {
     }
 
     /**
-    * This function returns the packet if it were a string.
-    * It relies on the packet inheriting the wrapString function from
-    * it's parents.
-    */
+     * Returns the packet as a string.
+     * This method relies on the packet inheriting the wrapString
+     * function from its parent class.
+     */
     public String toString() {
         return wrapString(position.x + " " + position.y + " " + position.z);
     }
 }
-
-{% endhighlight %}
+```
 
 ### Game Implementation
-Here is an example of how the packets are processed by the client
- in the specific implementation within the 3D demonstration:
 
-{% highlight java lineanchors %}
+Here is an example of how packets are processed by the client in the specific implementation within the 3D demonstration:
 
+```java
 /**
-* Processes an individual Server State Position Packet, moving the mentioned player's render object in game
-*/
+ * Processes an individual Server State Position Packet,
+ * moving the mentioned player's render object in-game.
+ */
 public void processPositionPacket(ServerStatePositionPacket packet) {
-    //Get the data from the packet
+    // Get the data from the packet
     String name = packet.name;
     Vertex player_pos = packet.vertex;
 
-    //If other player already an object in game
-    if (nameToObject.keySet().contains(name)) {
-
-        //Find the object of the other player, and move it
+    // If the other player already has an object in-game
+    if (nameToObject.containsKey(name)) {
+        // Find the object and move it
         RenderObject obj = nameToObject.get(name);  
         obj.setPosition(player_pos);
-
     } else {
+        // Otherwise, create a new object for the player
+        RenderObject obj = RenderObject.loadObject("data/monkey.obj", "player", 
+            new InverseSqrShadow(new Color(0, 0, 255), game_scene), 
+            new Vertex(0, 0, 0));
 
-        //Otherwise make a new object that represents the player
-        RenderObject obj = RenderObject.loadObject("data/monkey.obj", "player", new InverseSqrShadow(new Color(0,0,255), game_scene), new Vertex(0,0f,0));
-
-        //Add this object to our map and to the Scene
+        // Add this object to our map and the scene
         nameToObject.put(name, obj);
         game_scene.addObject(obj);
-
     }
 }
+```
 
-{% endhighlight %}
+Find [the link to the GitHub here](https://github.com/jc10101010/ViridianNetworking).
 
-Find [the link to the github here.](https://github.com/jc10101010/ViridianNetworking)
-
-### Future Plans: 
-  * Better edge case error handling
-  * A full lobby system
+### Future Plans:
+- Improve edge-case error handling
+- Develop a full lobby system
